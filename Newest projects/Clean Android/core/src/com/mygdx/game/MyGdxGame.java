@@ -1,5 +1,6 @@
 package com.mygdx.game;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -26,13 +27,14 @@ import java.util.HashMap;
 public class MyGdxGame extends ApplicationAdapter{
 	private final float UPDATE_TIME=1/60f;
 	float timer;
-	SpriteBatch batch;
+	static SpriteBatch batch;
 	private Socket socket;
 	String id;
 	Starship player;
 	Texture playerShip;
 	Texture friendlyShip;
 	HashMap<String, Starship> friendlyPlayers;
+	Controller controller;
 
 	@Override
 	public void create () {
@@ -40,6 +42,7 @@ public class MyGdxGame extends ApplicationAdapter{
 		playerShip = new Texture("Rocket_1.png");
 		friendlyShip = new Texture("Rocket_2.png");
 		friendlyPlayers = new HashMap<String, Starship>();
+		controller = new Controller();
 		connectSocket();
 		configSocketEvents();
 	}
@@ -51,24 +54,72 @@ public class MyGdxGame extends ApplicationAdapter{
 
 	public void handleInput(float dt){
 		if(player != null) {
-			if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
-				player.setPosition(player.getX() + (-200 * dt), player.getY());
-			} else if(Gdx.input.isKeyPressed(Input.Keys.RIGHT)){
-				player.setPosition(player.getX() + (+200 * dt), player.getY());
-			}else if(Gdx.input.isKeyPressed(Input.Keys.UP)){
-				player.setPosition(player.getX(), player.getY()+ (+200 * dt));
-			}else if(Gdx.input.isKeyPressed(Input.Keys.DOWN)){
-				player.setPosition(player.getX(), player.getY()+ (-200 * dt));
+//			Gdx.input.setInputProcessor(new InputAdapter() {
+//				@Override
+//				public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+//					//Shoot
+//					/*float dt=Gdx.graphics.getDeltaTime();
+//					player.setPosition(player.getX(), player.getY()+ (+200 * dt));*/
+//					return true;
+//				}
+//
+//				@Override
+//				public boolean touchDragged(int screenX, int screenY, int pointer){
+//					//MOVEMENT
+//					Gdx.app.log("Movement", " Screen Y:"+screenY);
+//					Gdx.app.log("Movement", " Player Y:"+player.getY());
+//					//Gdx.app.log("Movement", "Player X: " + player.getX() + " Player Y: "+ player.getY());
+//					float dt=Gdx.graphics.getDeltaTime();
+//					float speed= 200 * dt;
+//					float xPosition=player.getX();
+//					if((float)screenX != player.getX())
+//						xPosition = ((float)screenX > player.getX()) ? (player.getX() + speed) : (player.getX() - speed);
+//
+//					float yPosition=player.getY()-player.getHeight();
+//					if((Gdx.graphics.getWidth()-screenY != player.getY()-player.getHeight()))
+//						yPosition=(Gdx.graphics.getWidth()-screenY > player.getY()-player.getHeight()) ? (player.getY() + speed) : (player.getY() - speed);
+//
+//					player.setPosition(xPosition, yPosition);
+//					//float degree= (float)Math.atan2((double)(screenY-Gdx.graphics.getWidth()),(double)screenX);
+//					//float degree= (float) Math.tan(screenY/screenX);
+//					//Gdx.app.log("Movement", " Degree: "+degree);
+//					// Get these from where ever you have them
+//					Vector2 playerPosition = new Vector2(player.getX(), player.getY());
+//					Vector2 targetPosition = new Vector2(screenX, screenY);
+//
+//					// Calculate the vector from the ship to the target
+//					Vector2 vectorAngle = new Vector2(targetPosition).sub(playerPosition);
+//
+// 					// Get the angle of the ship-to-target
+//					float angle = vectorAngle.angle();
+//
+//					player.setOrigin(player.getWidth() / 2.0f, player.getHeight() / 2.0f);
+//					Gdx.app.log("Movement", " Angle:"+angle);
+//					//if((angle>180 && angle< 270) || (angle>0 || angle<90)){
+//						angle+=180;
+//					//}
+//					player.setRotation(angle);
+//					return true;
+//				}
+//			});
+			float speed= 200 * dt;
+			if(controller.isRightPressed()){
+				Gdx.app.log("Movement", "RIGHT");
+				player.setPosition(player.getX()+speed, player.getY());
+			}
+			else if (controller.isLeftPressed()) {
+				Gdx.app.log("Movement", " LEFT");
+				player.setPosition(player.getX()-speed, player.getY());
+			}
+			if (controller.isUpPressed() ){
+				Gdx.app.log("Movement", " UP PRESSED");
+				player.setPosition(player.getX(), player.getY()+speed);
+			}
+			if(controller.isDownPressed()){
+				Gdx.app.log("Movement", " DOWN PRESSED");
+				player.setPosition(player.getX(), player.getY()-speed);
 			}
 
-			Gdx.input.setInputProcessor(new InputAdapter() {
-				@Override
-				public boolean touchDown(int screenX, int screenY, int pointer, int button) {  //movement
-					float dt=Gdx.graphics.getDeltaTime();
-					player.setPosition(player.getX(), player.getY()+ (+200 * dt));
-					return true;
-				}
-			});
 		}
 	}
 
@@ -88,11 +139,11 @@ public class MyGdxGame extends ApplicationAdapter{
 	public void render () {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		if(friendlyPlayers.size()==1) {
+		//if(friendlyPlayers.size()==1) {
 			handleInput(Gdx.graphics.getDeltaTime());
-		} else if (friendlyPlayers.size()>1){
+		/**} else if (friendlyPlayers.size()>1){
 			socket.disconnect(); //should change here what happens when disconnect
-		}
+		}*/
 
 		updateServer(Gdx.graphics.getDeltaTime());
 
@@ -103,7 +154,10 @@ public class MyGdxGame extends ApplicationAdapter{
 		for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
 			entry.getValue().draw(batch);
 		}
-		batch.end();
+        batch.end();
+		if(Gdx.app.getType() == Application.ApplicationType.Android)
+			controller.draw();
+
 	}
 
 	@Override
@@ -116,6 +170,7 @@ public class MyGdxGame extends ApplicationAdapter{
 	public void connectSocket(){
 		try {
 			socket = IO.socket("http://ec2-34-241-75-147.eu-west-1.compute.amazonaws.com:8080");
+			//socket = IO.socket("http://localhost:8080");
 			socket.connect();
 		} catch(Exception e){
 			System.out.println(e);

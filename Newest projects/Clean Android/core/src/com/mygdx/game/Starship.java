@@ -8,8 +8,8 @@ public class Starship extends Sprite {
     Vector2 previousPosition;
     public Starship(Texture texture){
         super(texture);
+        this.setOrigin(getWidth()/2,getHeight()/2);
         previousPosition = new Vector2(getX(), getY());
-
     }
 
     public boolean hasMoved(){
