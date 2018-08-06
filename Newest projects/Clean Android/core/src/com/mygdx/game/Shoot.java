@@ -17,4 +17,5 @@ public class Shoot extends Sprite {
         previousPosition = new Vector2(getX(), getY());
         shots.add(this);
     }
+    //Shuki Ha Meleh
 }
