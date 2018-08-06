@@ -13,9 +13,18 @@ public class Shoot extends Sprite {
     Vector2 previousPosition;
     public Shoot(Texture texture, Starship starship){
         super(texture);
-        this.setPosition(starship.previousPosition.x/2,starship.previousPosition.y/2);
+        this.setRotation(starship.getRotation());
+        if(getRotation()==0) //up ~regular
+            this.setPosition(starship.getX()+starship.getWidth()/2,starship.getY()+starship.getHeight());
+        else if (getRotation()==90) { //left
+            this.setPosition(starship.getX()-starship.getHeight()/2+30,starship.getY()+starship.getWidth()/2+24);
+        } else if(getRotation()==180){ //down
+            this.setPosition(starship.getX()+starship.getWidth()/2,starship.getY()-starship.getWidth()/2-24);
+        } else if(getRotation()==270) //right
+            this.setPosition(starship.getX()+starship.getHeight()-24,starship.getY()+starship.getWidth()/2+24);
+
         previousPosition = new Vector2(getX(), getY());
         shots.add(this);
     }
-    //Shuki Ha Meleh
+
 }
