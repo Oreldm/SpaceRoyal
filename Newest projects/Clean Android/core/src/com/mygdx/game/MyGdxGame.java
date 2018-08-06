@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -114,11 +115,20 @@ public class MyGdxGame extends ApplicationAdapter{
 		if(player != null){
 			player.draw(batch);
 		}
-
+		int i=0;
+		ArrayList<Integer> shotsToRemove=new ArrayList<Integer>();
 		for(Shoot s : Shoot.shots){
+			i++;
 			s.draw(batch);
 			s.move();
+			if(s.getX()> Gdx.graphics.getWidth() || s.getX()<0 || s.getY()>Gdx.graphics.getHeight() || s.getY()<0)
+				shotsToRemove.add(i);
 		}
+		for(Integer remove : shotsToRemove){
+			Shoot.shots.remove(remove);
+		}
+		//Collision Detection
+
 
 		for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
 			entry.getValue().draw(batch);
