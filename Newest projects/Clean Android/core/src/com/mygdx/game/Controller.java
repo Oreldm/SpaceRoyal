@@ -11,9 +11,6 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 
-/**
- * Created by brentaureli on 10/23/15.
- */
 public class Controller {
     Viewport viewport;
     Stage stage;
