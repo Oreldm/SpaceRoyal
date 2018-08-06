@@ -27,4 +27,17 @@ public class Shoot extends Sprite {
         shots.add(this);
     }
 
+    public void move(){
+        int speed = 100;
+        if(getRotation()==0){
+            this.setPosition(getX(),getY()+speed);
+        } else if (getRotation()==90){
+            this.setPosition(getX()-speed,getY());
+        } else if(getRotation()==180){
+            this.setPosition(getX(),getY()-speed);
+        }else if(getRotation()==270){
+            this.setPosition(getX()+speed,getY());
+        }
+    }
+
 }

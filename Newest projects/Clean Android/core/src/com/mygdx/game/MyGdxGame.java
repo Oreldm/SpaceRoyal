@@ -117,6 +117,7 @@ public class MyGdxGame extends ApplicationAdapter{
 
 		for(Shoot s : Shoot.shots){
 			s.draw(batch);
+			s.move();
 		}
 
 		for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
