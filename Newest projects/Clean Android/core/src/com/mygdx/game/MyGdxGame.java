@@ -43,6 +43,7 @@ public class MyGdxGame extends ApplicationAdapter{
 		friendlyShip = new Texture("Rocket_2.png");
 		friendlyPlayers = new HashMap<String, Starship>();
 		controller = new Controller();
+		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		connectSocket();
 		configSocketEvents();
 	}
@@ -54,54 +55,6 @@ public class MyGdxGame extends ApplicationAdapter{
 
 	public void handleInput(float dt){
 		if(player != null) {
-//			Gdx.input.setInputProcessor(new InputAdapter() {
-//				@Override
-//				public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//					//Shoot
-//					/*float dt=Gdx.graphics.getDeltaTime();
-//					player.setPosition(player.getX(), player.getY()+ (+200 * dt));*/
-//					return true;
-//				}
-//
-//				@Override
-//				public boolean touchDragged(int screenX, int screenY, int pointer){
-//					//MOVEMENT
-//					Gdx.app.log("Movement", " Screen Y:"+screenY);
-//					Gdx.app.log("Movement", " Player Y:"+player.getY());
-//					//Gdx.app.log("Movement", "Player X: " + player.getX() + " Player Y: "+ player.getY());
-//					float dt=Gdx.graphics.getDeltaTime();
-//					float speed= 200 * dt;
-//					float xPosition=player.getX();
-//					if((float)screenX != player.getX())
-//						xPosition = ((float)screenX > player.getX()) ? (player.getX() + speed) : (player.getX() - speed);
-//
-//					float yPosition=player.getY()-player.getHeight();
-//					if((Gdx.graphics.getWidth()-screenY != player.getY()-player.getHeight()))
-//						yPosition=(Gdx.graphics.getWidth()-screenY > player.getY()-player.getHeight()) ? (player.getY() + speed) : (player.getY() - speed);
-//
-//					player.setPosition(xPosition, yPosition);
-//					//float degree= (float)Math.atan2((double)(screenY-Gdx.graphics.getWidth()),(double)screenX);
-//					//float degree= (float) Math.tan(screenY/screenX);
-//					//Gdx.app.log("Movement", " Degree: "+degree);
-//					// Get these from where ever you have them
-//					Vector2 playerPosition = new Vector2(player.getX(), player.getY());
-//					Vector2 targetPosition = new Vector2(screenX, screenY);
-//
-//					// Calculate the vector from the ship to the target
-//					Vector2 vectorAngle = new Vector2(targetPosition).sub(playerPosition);
-//
-// 					// Get the angle of the ship-to-target
-//					float angle = vectorAngle.angle();
-//
-//					player.setOrigin(player.getWidth() / 2.0f, player.getHeight() / 2.0f);
-//					Gdx.app.log("Movement", " Angle:"+angle);
-//					//if((angle>180 && angle< 270) || (angle>0 || angle<90)){
-//						angle+=180;
-//					//}
-//					player.setRotation(angle);
-//					return true;
-//				}
-//			});
 			float speed= 400 * dt;
 			if(controller.isRightPressed()){
 				Gdx.app.log("Movement", "RIGHT");
@@ -124,7 +77,11 @@ public class MyGdxGame extends ApplicationAdapter{
 				player.setRotation(180);
 			}
 
-
+			if(controller.isShootPressed()){
+				Gdx.app.log("Movement", " Shoot");
+                new Shoot(new Texture("ShootingAsset.png"), player);
+				Controller.shootPressed=false;
+			}
 
 		}
 	}
@@ -157,13 +114,17 @@ public class MyGdxGame extends ApplicationAdapter{
 		if(player != null){
 			player.draw(batch);
 		}
+
+		for(Shoot s : Shoot.shots){
+			s.draw(batch);
+		}
+
 		for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
 			entry.getValue().draw(batch);
 		}
         batch.end();
 		if(Gdx.app.getType() == Application.ApplicationType.Android)
 			controller.draw();
-
 	}
 
 	@Override
@@ -182,6 +143,7 @@ public class MyGdxGame extends ApplicationAdapter{
 			System.out.println(e);
 		}
 	}
+
 	public void configSocketEvents(){
 		socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
 			@Override

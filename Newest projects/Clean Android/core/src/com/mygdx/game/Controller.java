@@ -13,57 +13,16 @@ import com.badlogic.gdx.utils.viewport.Viewport;
 
 public class Controller {
     Viewport viewport;
-    Stage stage;
+    public Stage stage;
     boolean upPressed, downPressed, leftPressed, rightPressed;
     OrthographicCamera cam;
     private final int BTN_SIZE=100;
+    public static boolean shootPressed;
 
     public Controller(){
         cam = new OrthographicCamera();
         viewport = new FitViewport(Gdx.graphics.getWidth(), Gdx.graphics.getHeight(), cam);
         stage = new Stage(viewport, MyGdxGame.batch);
-
-        stage.addListener(new InputListener(){
-
-            @Override
-            public boolean keyDown(InputEvent event, int keycode) {
-                switch(keycode){
-                    case Input.Keys.UP:
-                        upPressed = true;
-                        break;
-                    case Input.Keys.DOWN:
-                        downPressed = true;
-                        break;
-                    case Input.Keys.LEFT:
-                        leftPressed = true;
-                        break;
-                    case Input.Keys.RIGHT:
-                        rightPressed = true;
-                        break;
-                }
-                return true;
-            }
-
-            @Override
-            public boolean keyUp(InputEvent event, int keycode) {
-                switch(keycode){
-                    case Input.Keys.UP:
-                        upPressed = false;
-                        break;
-                    case Input.Keys.DOWN:
-                        downPressed = false;
-                        break;
-                    case Input.Keys.LEFT:
-                        leftPressed = false;
-                        break;
-                    case Input.Keys.RIGHT:
-                        rightPressed = false;
-                        break;
-                }
-                return true;
-            }
-        });
-
         Gdx.input.setInputProcessor(stage);
 
         Table table = new Table();
@@ -147,8 +106,28 @@ public class Controller {
 
         stage.addActor(table);
 
+        //Adding fire button
+        Image fireButton = new Image(new Texture("Shoot.png"));
+        fireButton.setSize(BTN_SIZE*2, BTN_SIZE*2);
+        fireButton.addListener(new InputListener() {
+
+            @Override
+            public boolean touchDown(InputEvent event, float x, float y, int pointer, int button) {
+                shootPressed = true;
+                return true;
+            }
+
+            @Override
+            public void touchUp(InputEvent event, float x, float y, int pointer, int button) {
+                shootPressed=false;
+            }
+        });
+        stage.addActor(fireButton);
+
         Gdx.app.log("Controller",""+(Gdx.graphics.getWidth()-table.getWidth()) + "  ,  "+ table.getHeight());
         table.setPosition(Gdx.graphics.getWidth()-(BTN_SIZE*4) , BTN_SIZE);
+        fireButton.setPosition(BTN_SIZE,BTN_SIZE);
+
     }
 
     public void draw(){
@@ -173,5 +152,9 @@ public class Controller {
 
     public void resize(int width, int height){
         viewport.update(width, height);
+    }
+
+    public boolean isShootPressed() {
+        return shootPressed;
     }
 }
