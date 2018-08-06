@@ -24,6 +24,8 @@ import java.util.HashMap;
 
 
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 public class MyGdxGame extends ApplicationAdapter{
 	private final float UPDATE_TIME=1/60f;
@@ -123,12 +125,21 @@ public class MyGdxGame extends ApplicationAdapter{
 			s.move();
 			if(s.getX()> Gdx.graphics.getWidth() || s.getX()<0 || s.getY()>Gdx.graphics.getHeight() || s.getY()<0)
 				shotsToRemove.add(i);
+			Iterator it = friendlyPlayers.entrySet().iterator();
+			while(it.hasNext()){
+				Map.Entry pair= (Map.Entry)it.next();
+				Starship enemy = (Starship)pair.getValue();
+				//Collision Detection
+				if((s.getX()> enemy.getX() && s.getX()<enemy.getX()+enemy.getWidth()) && (s.getY()<enemy.getY()+enemy.getHeight() && s.getY()>enemy.getY())){
+					shotsToRemove.add(i);
+					Gdx.app.log("Collision", "Kaboom");
+
+				}
+			}
 		}
 		for(Integer remove : shotsToRemove){
 			Shoot.shots.remove(remove);
 		}
-		//Collision Detection
-
 
 		for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
 			entry.getValue().draw(batch);
