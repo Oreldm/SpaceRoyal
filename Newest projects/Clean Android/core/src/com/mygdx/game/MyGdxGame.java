@@ -20,6 +20,7 @@ import org.json.JSONObject;
 
 
 import java.util.ArrayList;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 
@@ -38,6 +39,8 @@ public class MyGdxGame extends ApplicationAdapter{
 	Texture friendlyShip;
 	HashMap<String, Starship> friendlyPlayers;
 	Controller controller;
+	ArrayList<Texture> boomArr = new ArrayList<Texture>();
+	HashMap<Vector2,Integer> bombToDraw=new HashMap<Vector2, Integer>();
 
 	@Override
 	public void create () {
@@ -47,6 +50,9 @@ public class MyGdxGame extends ApplicationAdapter{
 		friendlyPlayers = new HashMap<String, Starship>();
 		controller = new Controller();
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
+		for(int i=1;i<15;i++){
+			boomArr.add(new Texture(CollisionBoom.animationBaseName+i+".png"));
+		}
 		connectSocket();
 		configSocketEvents();
 	}
@@ -117,31 +123,47 @@ public class MyGdxGame extends ApplicationAdapter{
 		if(player != null){
 			player.draw(batch);
 		}
-		for(Shoot s : Shoot.shots){
-			s.draw(batch);
-			s.move();
-			if(s.getX()> Gdx.graphics.getWidth() || s.getX()<0 || s.getY()>Gdx.graphics.getHeight() || s.getY()<0)
-				//Shot is outside of screen
-				Shoot.shots.remove(s);
-			Iterator it = friendlyPlayers.entrySet().iterator();
-			while(it.hasNext()){
-				Map.Entry pair= (Map.Entry)it.next();
-				Starship enemy = (Starship)pair.getValue();
-				//Collision Detection
-				boolean isCollision=false;
-				if(enemy.getRotation()== 0 || enemy.getRotation()==180)
-					//enemy is vertical
-					isCollision=(s.getX()> enemy.getX() && s.getX()<enemy.getX()+enemy.getWidth()) && (s.getY()<enemy.getY()+enemy.getHeight() && s.getY()>enemy.getY());
-				else
-					//enemy is horizontal
-					isCollision=((s.getX()>enemy.getX() && s.getX()<enemy.getX()+enemy.getHeight()) && (s.getY()>enemy.getY() && s.getY()<enemy.getY()+enemy.getWidth()));
-
-				if(isCollision){
+		try{
+			for(Shoot s : Shoot.shots){
+				s.draw(batch);
+				s.move();
+				if(s.getX()> Gdx.graphics.getWidth() || s.getX()<0 || s.getY()>Gdx.graphics.getHeight() || s.getY()<0)
+					//Shot is outside of screen
 					Shoot.shots.remove(s);
-					Gdx.app.log("Collision", "Kaboom");
+				Iterator it = friendlyPlayers.entrySet().iterator();
+				while(it.hasNext()){
+					Map.Entry pair= (Map.Entry)it.next();
+					Starship enemy = (Starship)pair.getValue();
+					//Collision Detection
+					boolean isCollision=false;
+					if(enemy.getRotation()== 0 || enemy.getRotation()==180)
+						//enemy is vertical
+						isCollision=(s.getX()> enemy.getX() && s.getX()<enemy.getX()+enemy.getWidth()) && (s.getY()<enemy.getY()+enemy.getHeight() && s.getY()>enemy.getY());
+					else
+						//enemy is horizontal
+						isCollision=((s.getX()>enemy.getX() && s.getX()<enemy.getX()+enemy.getHeight()) && (s.getY()>enemy.getY() && s.getY()<enemy.getY()+enemy.getWidth()));
+
+					if(isCollision){
+						enemy.setOrigin(enemy.getWidth()/2-enemy.getWidth()/4,enemy.getHeight()/2);
+
+						bombToDraw.put(new Vector2(enemy.getX(),enemy.getY()),1); //adding shot that should be draw
+						Shoot.shots.remove(s);
+						Gdx.app.log("Collision", "Kaboom");
+					}
 				}
+			}}catch(ConcurrentModificationException e){Shoot.shots = new ArrayList<Shoot>();}
+		try{
+		for(HashMap.Entry<Vector2, Integer> entry : bombToDraw.entrySet()){ //drawing shots
+			if(entry.getValue()<14){
+				new CollisionBoom(boomArr.get(entry.getValue()),entry.getKey().x-boomArr.get(entry.getValue()).getWidth()/3,entry.getKey().y).draw(batch);
+				bombToDraw.put(entry.getKey(), entry.getValue()+1);
 			}
-		}
+			if(entry.getValue()>=14){ //removing shot from MAP
+
+					bombToDraw.remove(entry.getKey());
+
+			}
+		}}catch(ConcurrentModificationException e){bombToDraw=new HashMap<Vector2, Integer>();}
 
 		for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
 			entry.getValue().draw(batch);
