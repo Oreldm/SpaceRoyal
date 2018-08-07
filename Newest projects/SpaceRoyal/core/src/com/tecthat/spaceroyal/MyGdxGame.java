@@ -34,7 +34,7 @@ public class MyGdxGame extends ApplicationAdapter {
 	Texture playerShip;
 	Texture friendlyShip;
 	HashMap<String, Starship> friendlyPlayers;
-	Controller controller;
+	//Controller controller;
 	ArrayList<Texture> boomArr = new ArrayList<Texture>();
 	HashMap<Vector2,Integer> bombToDraw=new HashMap<Vector2, Integer>();
 
@@ -44,7 +44,7 @@ public class MyGdxGame extends ApplicationAdapter {
 		playerShip = new Texture("Rocket_1.png");
 		friendlyShip = new Texture("Rocket_2.png");
 		friendlyPlayers = new HashMap<String, Starship>();
-		controller = new Controller();
+		//controller = new Controller();
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		for(int i=1;i<15;i++){
 			boomArr.add(new Texture(CollisionBoom.animationBaseName+i+".png"));
@@ -81,7 +81,7 @@ public class MyGdxGame extends ApplicationAdapter {
 			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
 				Gdx.app.log("Movement", " Shoot");
 				new Shoot(new Texture("ShootingAsset.png"), player);
-				Controller.shootPressed=false;
+				//Controller.shootPressed=false;
 			}
 
 		}
@@ -160,8 +160,8 @@ public class MyGdxGame extends ApplicationAdapter {
 			entry.getValue().draw(batch);
 		}
 		batch.end();
-		if(Gdx.app.getType() == Application.ApplicationType.Android)
-			controller.draw();
+	//	if(Gdx.app.getType() == Application.ApplicationType.Android)
+			//controller.draw();
 	}
 
 	@Override

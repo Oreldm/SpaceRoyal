@@ -32,7 +32,7 @@ public class MyGdxGame extends ApplicationAdapter{
 	private final float UPDATE_TIME=1/60f;
 	float timer;
 	static SpriteBatch batch;
-	private Socket socket;
+	public static Socket socket;
 	String id;
 	Starship player;
 	Texture playerShip;

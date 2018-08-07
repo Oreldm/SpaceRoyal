@@ -13,4 +13,11 @@ public class AndroidLauncher extends AndroidApplication {
 		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
 		initialize(new MyGdxGame(), config);
 	}
+
+	@Override
+	public void onBackPressed(){
+		super.onBackPressed();
+		MyGdxGame.socket.disconnect();
+		finish();
+	}
 }
