@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Random;
 
 import javax.xml.stream.events.StartDocument;
 
@@ -104,6 +105,14 @@ public class MyGdxGame extends ApplicationAdapter{
 	public void updateServer(float dt){
 		timer +=dt;
 
+		if(player.hp<=0){
+			JSONObject data = new JSONObject();
+			try{
+				data.put("dead",player.hp);
+				socket.emit("dead", data);
+			}catch(Exception e){}
+		}
+
 		//update move of player
 		if(timer>= UPDATE_TIME && player !=null && player.hasMoved()){
 			JSONObject data = new JSONObject();
@@ -144,6 +153,10 @@ public class MyGdxGame extends ApplicationAdapter{
 		if(player != null){
 			player.draw(batch);
 		}
+
+		/**
+		 * Drawing Shots That get OUT OF PLAYER
+		 * **/
 		try{
 			for(Shoot s : Shoot.shots){
 				s.draw(batch);
@@ -174,7 +187,9 @@ public class MyGdxGame extends ApplicationAdapter{
 				}
 			}}catch(ConcurrentModificationException e){Shoot.shots = new ArrayList<Shoot>();}
 
-        //Collision WITH PLAYER
+        /*
+        * Drawing shots that GET OUT OF ENEMY
+        * */
         try{
             for(String id : enemyShootsToCreate){
                 enemyShoots.add(new Shoot(new Texture(Shoot.SHOOT_IMAGE),friendlyPlayers.get(id)));
@@ -197,8 +212,10 @@ public class MyGdxGame extends ApplicationAdapter{
 
                 if(isCollision){
                     player.setOrigin(player.getWidth()/2-player.getWidth()/4,player.getHeight()/2);
-
-                    bombToDraw.put(new Vector2(player.getX(),player.getY()),1); //adding shot that should be draw
+					Random r = new Random();
+					int hpToRemove = r.nextInt(19 - 1) + 1;
+					player.hp=player.hp-hpToRemove;
+                    bombToDraw.put(new Vector2(player.getX(),player.getY()),1); //adding bomb that should be draw
                     enemyShoots.remove(s);
                     Gdx.app.log("Collision", "Kaboom");
                 }
@@ -223,6 +240,8 @@ public class MyGdxGame extends ApplicationAdapter{
 		for(HashMap.Entry<String, Starship> entry : friendlyPlayers.entrySet()){
 			entry.getValue().draw(batch);
 		}
+
+
         batch.end();
 		if(Gdx.app.getType() == Application.ApplicationType.Android)
 			controller.draw();
@@ -334,6 +353,20 @@ public class MyGdxGame extends ApplicationAdapter{
 							//enemyShoots.add(new Shoot(new Texture(Shoot.SHOOT_IMAGE),friendlyPlayers.get(playerId)));
                             enemyShootsToCreate.add(playerId);
 						}
+				} catch(JSONException e){
+
+				}
+			}
+		}).on("dead", new Emitter.Listener() {
+			@Override
+			public void call(Object... args) {
+				JSONObject data = (JSONObject) args[0];
+				try {
+					String playerId=data.getString("dead");
+					Double x = data.getDouble("hp");
+					if(friendlyPlayers.get(playerId)!=null){
+						enemyShootsToCreate.add(playerId);
+					}
 				} catch(JSONException e){
 
 				}
