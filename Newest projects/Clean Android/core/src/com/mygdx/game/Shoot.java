@@ -9,7 +9,7 @@ import java.util.List;
 
 public class Shoot extends Sprite {
     public static ArrayList<Shoot>shots=new ArrayList<Shoot>();
-
+    public final static String SHOOT_IMAGE="ShootingAsset.png";
     Vector2 previousPosition;
     public Shoot(Texture texture, Starship starship){
         super(texture);

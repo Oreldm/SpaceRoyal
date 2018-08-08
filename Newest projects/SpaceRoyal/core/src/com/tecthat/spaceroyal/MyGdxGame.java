@@ -28,15 +28,17 @@ public class MyGdxGame extends ApplicationAdapter {
 	private final float UPDATE_TIME=1/60f;
 	float timer;
 	static SpriteBatch batch;
-	private Socket socket;
+	public static Socket socket;
 	String id;
 	Starship player;
 	Texture playerShip;
 	Texture friendlyShip;
 	HashMap<String, Starship> friendlyPlayers;
-	//Controller controller;
+	Controller controller;
 	ArrayList<Texture> boomArr = new ArrayList<Texture>();
 	HashMap<Vector2,Integer> bombToDraw=new HashMap<Vector2, Integer>();
+	ArrayList<String>enemyShootsToCreate=new ArrayList<String>(); //the string is playerID
+	ArrayList<Shoot>enemyShoots=new ArrayList<Shoot>();
 
 	@Override
 	public void create () {
@@ -80,7 +82,9 @@ public class MyGdxGame extends ApplicationAdapter {
 
 			if(Gdx.input.isKeyPressed(Input.Keys.SPACE)){
 				Gdx.app.log("Movement", " Shoot");
-				new Shoot(new Texture("ShootingAsset.png"), player);
+				new Shoot(new Texture(Shoot.SHOOT_IMAGE), player);
+				Controller.shootPressed=false;
+				player.hasShoot=true;
 				//Controller.shootPressed=false;
 			}
 
@@ -88,12 +92,27 @@ public class MyGdxGame extends ApplicationAdapter {
 	}
 	public void updateServer(float dt){
 		timer +=dt;
+
+		//update move of player
 		if(timer>= UPDATE_TIME && player !=null && player.hasMoved()){
 			JSONObject data = new JSONObject();
 			try{
 				data.put("x",player.getX());
 				data.put("y",player.getY());
+				data.put("rotation",player.getRotation());
 				socket.emit("playerMoved", data);
+			}catch(Exception e){}
+		}
+
+		//update shoot
+		if(timer>= UPDATE_TIME && player !=null && player.hasShoot){
+			player.hasShoot=false;
+			JSONObject data = new JSONObject();
+			try{
+				data.put("x",player.getX());
+				data.put("y",player.getY());
+				data.put("rotation",player.getRotation());
+				socket.emit("shoot", data);
 			}catch(Exception e){}
 		}
 	}
@@ -143,7 +162,43 @@ public class MyGdxGame extends ApplicationAdapter {
 					}
 				}
 			}}catch(ConcurrentModificationException e){Shoot.shots = new ArrayList<Shoot>();}
+
+		//Collision WITH PLAYER
 		try{
+			for(String id : enemyShootsToCreate){
+				enemyShoots.add(new Shoot(new Texture(Shoot.SHOOT_IMAGE),friendlyPlayers.get(id)));
+				enemyShootsToCreate.remove(id);
+			}
+			for(Shoot s : enemyShoots){
+				s.draw(batch);
+				s.move();
+				if(s.getX()> Gdx.graphics.getWidth() || s.getX()<0 || s.getY()>Gdx.graphics.getHeight() || s.getY()<0)
+					//Shot is outside of screen
+					enemyShoots.remove(s);
+
+				boolean isCollision=false;
+				if(player.getRotation()== 0 || player.getRotation()==180)
+					//enemy is vertical
+					isCollision=(s.getX()> player.getX() && s.getX()<player.getX()+player.getWidth()) && (s.getY()<player.getY()+player.getHeight() && s.getY()>player.getY());
+				else
+					//enemy is horizontal
+					isCollision=((s.getX()>player.getX() && s.getX()<player.getX()+player.getHeight()) && (s.getY()>player.getY() && s.getY()<player.getY()+player.getWidth()));
+
+				if(isCollision){
+					player.setOrigin(player.getWidth()/2-player.getWidth()/4,player.getHeight()/2);
+
+					bombToDraw.put(new Vector2(player.getX(),player.getY()),1); //adding shot that should be draw
+					enemyShoots.remove(s);
+					Gdx.app.log("Collision", "Kaboom");
+				}
+			}
+		}catch(ConcurrentModificationException e){
+			enemyShoots = new ArrayList<Shoot>();
+			enemyShootsToCreate=new ArrayList<String>(); //the string is playerID
+		}
+
+
+			try{
 			for(HashMap.Entry<Vector2, Integer> entry : bombToDraw.entrySet()){ //drawing shots
 				if(entry.getValue()<14){
 					new CollisionBoom(boomArr.get(entry.getValue()),entry.getKey().x-boomArr.get(entry.getValue()).getWidth()/3,entry.getKey().y).draw(batch);
@@ -231,8 +286,10 @@ public class MyGdxGame extends ApplicationAdapter {
 					String playerId=data.getString("id");
 					Double x = data.getDouble("x");
 					Double y = data.getDouble("y");
+					Double rotation=data.getDouble("rotation");
 					if(friendlyPlayers.get(playerId)!=null){
 						friendlyPlayers.get(playerId).setPosition(x.floatValue(),y.floatValue());
+						friendlyPlayers.get(playerId).setRotation(rotation.floatValue());
 					}
 				}catch(Exception e){
 				}
@@ -255,7 +312,25 @@ public class MyGdxGame extends ApplicationAdapter {
 
 				}
 			}
-		});
+		}).on("shoot", new Emitter.Listener() {
+            @Override
+            public void call(Object... args) {
+                JSONObject data = (JSONObject) args[0];
+                try {
+                    String playerId=data.getString("id");
+                    /*
+                    Double x = data.getDouble("x");
+                    Double y = data.getDouble("y");
+                    Double r = data.getDouble("rotation");*/
+                    if(friendlyPlayers.get(playerId)!=null){
+                       // enemyShoots.add(new Shoot(new Texture(Shoot.SHOOT_IMAGE),friendlyPlayers.get(playerId)));
+						enemyShootsToCreate.add(playerId);
+                    }
+                } catch(JSONException e){
+
+                }
+            }
+        });
 	}
 
 }

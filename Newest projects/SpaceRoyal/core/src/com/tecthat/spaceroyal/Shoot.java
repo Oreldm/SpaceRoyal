@@ -8,7 +8,7 @@ import java.util.ArrayList;
 
 public class Shoot extends Sprite {
     public static ArrayList<Shoot>shots=new ArrayList<Shoot>();
-
+    public final static String SHOOT_IMAGE="ShootingAsset.png";
     Vector2 previousPosition;
     public Shoot(Texture texture, Starship starship){
         super(texture);
@@ -25,6 +25,7 @@ public class Shoot extends Sprite {
         previousPosition = new Vector2(getX(), getY());
         shots.add(this);
     }
+
 
     public void move(){
         int speed = 100;

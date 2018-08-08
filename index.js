@@ -21,6 +21,20 @@ io.on('connection', function(socket){
 			if(players[i].id==data.id){
 				players[i].x=data.x;
 				players[i].y=data.y;
+				players[i].rotation=data.rotation;
+			}
+		}
+	});
+	
+	socket.on('shoot',function(data){
+		data.id=socket.id;
+		socket.broadcast.emit('shoot',data);
+		
+		for(var i=0; i<players.length;i++){
+			if(players[i].id==data.id){
+				players[i].x=data.x;
+				players[i].y=data.y;
+				players[i].rotation=data.rotation;
 			}
 		}
 	});
