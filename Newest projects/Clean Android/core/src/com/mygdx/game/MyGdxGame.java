@@ -108,7 +108,7 @@ public class MyGdxGame extends ApplicationAdapter{
 		if(player.hp<=0){
 			JSONObject data = new JSONObject();
 			try{
-				data.put("dead",player.hp);
+				data.put("hp",player.hp);
 				socket.emit("dead", data);
 			}catch(Exception e){}
 		}
@@ -362,10 +362,10 @@ public class MyGdxGame extends ApplicationAdapter{
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
 				try {
-					String playerId=data.getString("dead");
-					Double x = data.getDouble("hp");
-					if(friendlyPlayers.get(playerId)!=null){
-						enemyShootsToCreate.add(playerId);
+					String playerId=data.getString("id");
+					Double h = data.getDouble("hp");
+					if(friendlyPlayers.get(playerId)!=null && h.floatValue()<=0){
+						//CLOSE GAME
 					}
 				} catch(JSONException e){
 

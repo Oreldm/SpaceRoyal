@@ -13,6 +13,17 @@ io.on('connection', function(socket){
 	socket.emit('getPlayers', players);
 	socket.broadcast.emit('newPlayer', { id: socket.id });
 	
+	socket.on('dead',function(data){
+		data.id=socket.id;
+		socket.broadcast.emit('dead',data);
+		
+		for(var i=0; i<players.length;i++){
+			if(players[i].id==data.id){
+				players[i].hp=data.hp;
+			}
+		}
+	});
+	
 	socket.on('playerMoved',function(data){
 		data.id=socket.id;
 		socket.broadcast.emit('playerMoved',data);
