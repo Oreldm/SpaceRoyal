@@ -8,6 +8,7 @@ import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import io.socket.client.IO;
@@ -46,6 +47,12 @@ public class MyGdxGame extends ApplicationAdapter{
 	HashMap<Vector2,Integer> bombToDraw=new HashMap<Vector2, Integer>();
     public static ArrayList<Shoot>enemyShoots=new ArrayList<Shoot>();
     ArrayList<String> enemyShootsToCreate=new ArrayList<String>(); //the string is playerID
+	HealthBar hpBar;
+	Sprite heartIcon;
+	Sprite backHealthBar;
+	float sizeOfHealthBar;
+	float sizeOfBackHealthBar;
+	float basicHeightPosition;
 
 	@Override
 	public void create () {
@@ -53,11 +60,18 @@ public class MyGdxGame extends ApplicationAdapter{
 		playerShip = new Texture("Rocket_1.png");
 		friendlyShip = new Texture("Rocket_2.png");
 		friendlyPlayers = new HashMap<String, Starship>();
+		hpBar=new HealthBar(new Texture(HealthBar.HEALTH_BAR_IMAGE));
 		controller = new Controller();
+		heartIcon=new Sprite(new Texture("HPIcon.png"));
+		heartIcon.setPosition(1,Gdx.graphics.getHeight()-heartIcon.getHeight());
+		backHealthBar=new HealthBar(new Texture(HealthBar.HEALTH_BAR_BACK_IMAGE));
 		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 		for(int i=1;i<15;i++){
 			boomArr.add(new Texture(CollisionBoom.animationBaseName+i+".png"));
 		}
+		sizeOfHealthBar=(hpBar.getWidth()-300);
+		sizeOfBackHealthBar=(hpBar.getWidth()-295);
+		basicHeightPosition=Gdx.graphics.getHeight()-hpBar.getHeight()-heartIcon.getWidth()/4;
 		connectSocket();
 		configSocketEvents();
 	}
@@ -105,10 +119,10 @@ public class MyGdxGame extends ApplicationAdapter{
 	public void updateServer(float dt){
 		timer +=dt;
 
-		if(player.hp<=0){
+		if(player!=null && HealthBar.HP<=0){
 			JSONObject data = new JSONObject();
 			try{
-				data.put("hp",player.hp);
+				data.put("hp",HealthBar.HP);
 				socket.emit("dead", data);
 			}catch(Exception e){}
 		}
@@ -150,6 +164,21 @@ public class MyGdxGame extends ApplicationAdapter{
 		updateServer(Gdx.graphics.getDeltaTime());
 
 		batch.begin();
+
+		/**
+		 * Health bar
+		 */
+		//back health bar
+		batch.draw(backHealthBar,heartIcon.getWidth()/2,basicHeightPosition,sizeOfBackHealthBar,
+				hpBar.getHeight()+14);
+		//front health bar
+		float barSize=((float)HealthBar.HP/100);
+		batch.draw(hpBar,heartIcon.getWidth()/2,basicHeightPosition+7
+				,sizeOfHealthBar*barSize,hpBar.getHeight());
+		heartIcon.draw(batch);
+		/*END OF HEALTH BAR*/
+
+
 		if(player != null){
 			player.draw(batch);
 		}
@@ -214,7 +243,7 @@ public class MyGdxGame extends ApplicationAdapter{
                     player.setOrigin(player.getWidth()/2-player.getWidth()/4,player.getHeight()/2);
 					Random r = new Random();
 					int hpToRemove = r.nextInt(19 - 1) + 1;
-					player.hp=player.hp-hpToRemove;
+					HealthBar.HP=HealthBar.HP-hpToRemove;
                     bombToDraw.put(new Vector2(player.getX(),player.getY()),1); //adding bomb that should be draw
                     enemyShoots.remove(s);
                     Gdx.app.log("Collision", "Kaboom");

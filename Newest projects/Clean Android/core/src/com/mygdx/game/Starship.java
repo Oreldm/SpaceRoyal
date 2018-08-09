@@ -6,7 +6,6 @@ import com.badlogic.gdx.math.Vector2;
 
 public class Starship extends Sprite {
     Vector2 previousPosition;
-    int hp=100;
     public boolean hasShoot=false;
     public Starship(Texture texture){
         super(texture);
