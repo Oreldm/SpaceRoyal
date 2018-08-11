@@ -54,6 +54,8 @@ public class MyGdxGame extends ApplicationAdapter{
 	BitmapFont font;
 	public static boolean isFirstTime=true;
 	static int loops =0;
+	String endGameStr="Game Over!\n Press Back";
+	boolean canWrite=true;
 
 
 	@Override
@@ -305,15 +307,19 @@ public class MyGdxGame extends ApplicationAdapter{
 			MyGdxGame.socket.disconnect();
 
 			font.setColor(new Color(Color.WHITE));
-			font.getData().setScale(6);
-			font.draw(batch, "Game Over!\n Press Back",Gdx.graphics.getWidth()/2-font.getScaleX()/2,Gdx.graphics.getHeight()/2-font.getScaleY()/2);
+			font.getData().setScale(4);
+			font.draw(batch, endGameStr,Gdx.graphics.getWidth()/3,Gdx.graphics.getHeight()/2);
 		}
 
 
         batch.end();
 
-        if(HealthBar.HP<=0)
+        if(HealthBar.HP<=0){
+			if(canWrite)
+				endGameStr="You Lose :(\n"+endGameStr;
 			isGameOver=true;
+			canWrite=false;
+		}
 		if(Gdx.app.getType() == Application.ApplicationType.Android)
 			controller.draw();
 
@@ -443,6 +449,7 @@ public class MyGdxGame extends ApplicationAdapter{
 					if(friendlyPlayers.get(playerId)!=null && h.floatValue()<=0){
 						//CLOSE GAME
 						isGameOver=true;
+						endGameStr="You WON! \n"+endGameStr;
 					}
 				} catch(JSONException e){
 
