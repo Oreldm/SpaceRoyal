@@ -446,18 +446,9 @@ public class MyGdxGame extends ApplicationAdapter{
 		}).on("dead", new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
-				JSONObject data = (JSONObject) args[0];
-				try {
-					String playerId=data.getString("id");
-					Double h = data.getDouble("hp");
-					if(friendlyPlayers.get(playerId)!=null && h.floatValue()<=0){
-						//CLOSE GAME
-						isGameOver=true;
-						endGameStr="You WON! \n"+endGameStr;
-					}
-				} catch(JSONException e){
-
-				}
+					//CLOSE GAME
+					isGameOver=true;
+					endGameStr="You WON! \n"+endGameStr;
 			}
 		});
 	}
