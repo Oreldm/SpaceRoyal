@@ -6,8 +6,10 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -35,6 +37,7 @@ import javax.xml.stream.events.StartDocument;
 public class MyGdxGame extends ApplicationAdapter{
 	private final float UPDATE_TIME=1/60f;
 	float timer;
+	boolean isGameOver=false;
 	static SpriteBatch batch;
 	public static Socket socket;
 	String id;
@@ -53,9 +56,12 @@ public class MyGdxGame extends ApplicationAdapter{
 	float sizeOfHealthBar;
 	float sizeOfBackHealthBar;
 	float basicHeightPosition;
+	BitmapFont font;
+
 
 	@Override
 	public void create () {
+		font = new BitmapFont();
 		batch = new SpriteBatch();
 		playerShip = new Texture("Rocket_1.png");
 		friendlyShip = new Texture("Rocket_2.png");
@@ -72,6 +78,7 @@ public class MyGdxGame extends ApplicationAdapter{
 		sizeOfHealthBar=(hpBar.getWidth()-300);
 		sizeOfBackHealthBar=(hpBar.getWidth()-295);
 		basicHeightPosition=Gdx.graphics.getHeight()-hpBar.getHeight()-heartIcon.getWidth()/4;
+		player = new Starship(playerShip);
 		connectSocket();
 		configSocketEvents();
 	}
@@ -270,10 +277,23 @@ public class MyGdxGame extends ApplicationAdapter{
 			entry.getValue().draw(batch);
 		}
 
+		if(isGameOver){
+        	isGameOver=false;
+			MyGdxGame.socket.disconnect();
+
+			font.setColor(new Color(Color.WHITE));
+			font.getData().setScale(6);
+			font.draw(batch, "Game Over!\n Press Back",Gdx.graphics.getWidth()/2-font.getScaleX()/2,Gdx.graphics.getHeight()/2-font.getScaleY()/2);
+		}
+
 
         batch.end();
+
+        if(HealthBar.HP<=0)
+			isGameOver=true;
 		if(Gdx.app.getType() == Application.ApplicationType.Android)
 			controller.draw();
+
 	}
 
 	@Override
@@ -298,7 +318,6 @@ public class MyGdxGame extends ApplicationAdapter{
 			@Override
 			public void call(Object... args) {
 				Gdx.app.log("SocketIO", "Connected");
-				player = new Starship(playerShip);
 			}
 		}).on("socketID", new Emitter.Listener() {
 			@Override
@@ -395,6 +414,7 @@ public class MyGdxGame extends ApplicationAdapter{
 					Double h = data.getDouble("hp");
 					if(friendlyPlayers.get(playerId)!=null && h.floatValue()<=0){
 						//CLOSE GAME
+						isGameOver=true;
 					}
 				} catch(JSONException e){
 
