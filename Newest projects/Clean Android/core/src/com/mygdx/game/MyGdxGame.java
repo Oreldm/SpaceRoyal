@@ -3,9 +3,6 @@ package com.mygdx.game;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input;
-import com.badlogic.gdx.InputAdapter;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,12 +24,9 @@ import java.util.ConcurrentModificationException;
 import java.util.HashMap;
 
 
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
-
-import javax.xml.stream.events.StartDocument;
 
 public class MyGdxGame extends ApplicationAdapter{
 	private final float UPDATE_TIME=1/60f;
@@ -44,6 +38,7 @@ public class MyGdxGame extends ApplicationAdapter{
 	Starship player;
 	Texture playerShip;
 	Texture friendlyShip;
+	Texture background;
 	HashMap<String, Starship> friendlyPlayers;
 	Controller controller;
 	ArrayList<Texture> boomArr = new ArrayList<Texture>();
@@ -58,6 +53,7 @@ public class MyGdxGame extends ApplicationAdapter{
 	float basicHeightPosition;
 	BitmapFont font;
 	public static boolean isFirstTime=true;
+	static int loops =0;
 
 
 	@Override
@@ -66,6 +62,7 @@ public class MyGdxGame extends ApplicationAdapter{
 		batch = new SpriteBatch();
 		playerShip = new Texture("Rocket_1.png");
 		friendlyShip = new Texture("Rocket_2.png");
+		background = new Texture("GameplayBackground.png");
 		friendlyPlayers = new HashMap<String, Starship>();
 		hpBar=new HealthBar(new Texture(HealthBar.HEALTH_BAR_IMAGE));
 		controller = new Controller();
@@ -82,7 +79,6 @@ public class MyGdxGame extends ApplicationAdapter{
 		connectSocket();
 		player = new Starship(playerShip);
 		configSocketEvents();
-
 	}
 
 	@Override
@@ -91,7 +87,7 @@ public class MyGdxGame extends ApplicationAdapter{
 	}
 
 	public void handleInput(float dt){
-		if(player != null) {
+		if(player != null && !isGameOver) {
 			float speed= 400 * dt;
 			if(controller.isRightPressed()){
 				Gdx.app.log("Movement", "RIGHT");
@@ -160,7 +156,6 @@ public class MyGdxGame extends ApplicationAdapter{
 		}
 	}
 
-	static int times=0;
 
 	@Override
 	public void render () {
@@ -173,22 +168,33 @@ public class MyGdxGame extends ApplicationAdapter{
 		}*/
 
 		//Placement
-		if(times<100) //100 is because friendlyPlayers might need to load :)
-			times++;
-		if(friendlyPlayers.size()>0 && isFirstTime && times<100){
+		if(loops <100) //100 is because friendlyPlayers might need to load :)
+			loops++;
+		if(friendlyPlayers.size()>0 && isFirstTime && loops <100){
 			isFirstTime=false;
 			player.setPosition(Gdx.graphics.getWidth()/2-player.getWidth()/2,Gdx.graphics.getHeight()-player.getHeight());
 			player.setRotation(180);
-		} else if(isFirstTime && times ==100)
+		} else if(isFirstTime && loops ==100)
 			isFirstTime=false;
 		//PLACEMENT UNTIL HERE
 
 
 
-		updateServer(Gdx.graphics.getDeltaTime());
+		new Thread(new Runnable() {
+			//Thread to update server simultanosly so the game will glide
+			@Override
+			public void run() {
+				Gdx.app.postRunnable(new Runnable() {
+					@Override
+					public void run() {
+						updateServer(Gdx.graphics.getDeltaTime());
+					}
+				});
+			}
+		}).start();
 
 		batch.begin();
-
+		batch.draw(background, 0 , 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		/**
 		 * Health bar
 		 */
@@ -331,6 +337,7 @@ public class MyGdxGame extends ApplicationAdapter{
 		}
 	}
 
+
 	public void configSocketEvents(){
 		socket.on(Socket.EVENT_CONNECT, new Emitter.Listener() {
 			@Override
@@ -382,6 +389,9 @@ public class MyGdxGame extends ApplicationAdapter{
 					Double y = data.getDouble("y");
 					Double rotation = data.getDouble("rotation");
 					if(friendlyPlayers.get(playerId)!=null){
+//						positionsPlayers.add(new Vector2(x.floatValue(),y.floatValue()));
+//						rotationsPlayers.add(rotation.intValue());
+//						enemyId=playerId;
 						friendlyPlayers.get(playerId).setPosition(x.floatValue(),y.floatValue());
 						friendlyPlayers.get(playerId).setRotation(rotation.floatValue());
 					}

@@ -2,7 +2,6 @@ package com.mygdx.game;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +31,6 @@ public class MainMenu extends Activity {
         super.onResume();
         HealthBar.HP=100;
         MyGdxGame.isFirstTime=true;
-        MyGdxGame.times=0;
+        MyGdxGame.loops =0;
     }
 }
