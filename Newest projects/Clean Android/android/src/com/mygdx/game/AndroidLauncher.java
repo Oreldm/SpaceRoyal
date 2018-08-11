@@ -24,6 +24,7 @@ public class AndroidLauncher extends AndroidApplication {
 
 	@Override
 	public void onBackPressed(){
+		//SAVE HERE GAME DATA
 		super.onBackPressed();
 		MyGdxGame.socket.disconnect();
 		finish();

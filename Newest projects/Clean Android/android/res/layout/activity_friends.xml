@@ -4,13 +4,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".FriendsActivity">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="155dp"
-        android:layout_height="89dp"
-        android:text="Button"
-        tools:layout_editor_absoluteX="88dp"
-        tools:layout_editor_absoluteY="266dp" />
 </android.support.constraint.ConstraintLayout>

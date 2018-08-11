@@ -22,6 +22,7 @@ android {
         targetSdkVersion 28
         versionCode 1
         versionName "1.0"
+        multiDexEnabled true
     }
     buildTypes {
         release {
@@ -136,4 +137,6 @@ idea {
 
 dependencies {
     implementation 'com.android.support.constraint:constraint-layout:+'
+    implementation 'com.facebook.android:facebook-android-sdk:[4,5)'
+    implementation 'com.android.support:multidex:1.0.3'
 }

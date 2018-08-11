@@ -3,5 +3,9 @@
 
     <string name="app_name">my-gdx-game</string>
     <string name="title_activity_main">MainActivity</string>
+    <string name="title_activity_face_book_login">FaceBookLogin</string>
+    <string name="facebook_app_id">2144920199106393</string>
+    <string name="fb_login_protocol_scheme">fb2144920199106393</string>
+    <string name="title_activity_friends">FriendsActivity</string>
 
 </resources>
