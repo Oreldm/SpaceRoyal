@@ -31,5 +31,7 @@ public class MainMenu extends Activity {
     public void onResume(){
         super.onResume();
         HealthBar.HP=100;
+        MyGdxGame.isFirstTime=true;
+        MyGdxGame.times=0;
     }
 }

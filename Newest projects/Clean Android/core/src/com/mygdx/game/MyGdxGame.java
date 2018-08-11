@@ -57,6 +57,7 @@ public class MyGdxGame extends ApplicationAdapter{
 	float sizeOfBackHealthBar;
 	float basicHeightPosition;
 	BitmapFont font;
+	public static boolean isFirstTime=true;
 
 
 	@Override
@@ -78,9 +79,10 @@ public class MyGdxGame extends ApplicationAdapter{
 		sizeOfHealthBar=(hpBar.getWidth()-300);
 		sizeOfBackHealthBar=(hpBar.getWidth()-295);
 		basicHeightPosition=Gdx.graphics.getHeight()-hpBar.getHeight()-heartIcon.getWidth()/4;
-		player = new Starship(playerShip);
 		connectSocket();
+		player = new Starship(playerShip);
 		configSocketEvents();
+
 	}
 
 	@Override
@@ -158,6 +160,8 @@ public class MyGdxGame extends ApplicationAdapter{
 		}
 	}
 
+	static int times=0;
+
 	@Override
 	public void render () {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
@@ -167,6 +171,19 @@ public class MyGdxGame extends ApplicationAdapter{
 		/**} else if (friendlyPlayers.size()>1){
 			socket.disconnect(); //should change here what happens when disconnect
 		}*/
+
+		//Placement
+		if(times<100) //100 is because friendlyPlayers might need to load :)
+			times++;
+		if(friendlyPlayers.size()>0 && isFirstTime && times<100){
+			isFirstTime=false;
+			player.setPosition(Gdx.graphics.getWidth()/2-player.getWidth()/2,Gdx.graphics.getHeight()-player.getHeight());
+			player.setRotation(180);
+		} else if(isFirstTime && times ==100)
+			isFirstTime=false;
+		//PLACEMENT UNTIL HERE
+
+
 
 		updateServer(Gdx.graphics.getDeltaTime());
 
@@ -293,6 +310,7 @@ public class MyGdxGame extends ApplicationAdapter{
 			isGameOver=true;
 		if(Gdx.app.getType() == Application.ApplicationType.Android)
 			controller.draw();
+
 
 	}
 
