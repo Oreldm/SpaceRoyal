@@ -93,22 +93,26 @@ public class MyGdxGame extends ApplicationAdapter{
 			float speed= 400 * dt;
 			if(controller.isRightPressed()){
 				Gdx.app.log("Movement", "RIGHT");
-				player.setPosition(player.getX()+speed, player.getY());
+				if(player.getX()+player.getHeight()-player.getWidth()<Gdx.graphics.getWidth())
+					player.setPosition(player.getX()+speed, player.getY());
 				player.setRotation(90+180);
 			}
 			else if (controller.isLeftPressed()) {
 				Gdx.app.log("Movement", " LEFT");
-				player.setPosition(player.getX()-speed, player.getY());
+				if(player.getX()>0)
+					player.setPosition(player.getX()-speed, player.getY());
 				player.setRotation(90);
 			}
 			if (controller.isUpPressed() ){
 				Gdx.app.log("Movement", " UP PRESSED");
-				player.setPosition(player.getX(), player.getY()+speed);
+				if(player.getY()+player.getHeight()<Gdx.graphics.getHeight())
+					player.setPosition(player.getX(), player.getY()+speed);
 				player.setRotation(0);
 			}
 			if(controller.isDownPressed()){
 				Gdx.app.log("Movement", " DOWN PRESSED");
-				player.setPosition(player.getX(), player.getY()-speed);
+				if(player.getY()>0)
+					player.setPosition(player.getX(), player.getY()-speed);
 				player.setRotation(180);
 			}
 
