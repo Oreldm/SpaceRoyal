@@ -20,6 +20,7 @@ import com.facebook.login.widget.LoginButton;
 import java.util.Arrays;
 
 public class MainMenu extends Activity {
+
     Button startGame;
     Intent intent;
     CallbackManager callbackManager;
@@ -78,6 +79,17 @@ public class MainMenu extends Activity {
             @Override
             public void onClick(View v) {
                 intent = new Intent(MainMenu.this, FriendsActivity.class);
+                MainMenu.this.startActivity(intent);
+            }
+        });
+
+        Button storeButton = (Button)findViewById(R.id.btn_store);
+
+        // handle set start click
+        storeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                intent = new Intent(MainMenu.this, StoreActivity.class);
                 MainMenu.this.startActivity(intent);
             }
         });

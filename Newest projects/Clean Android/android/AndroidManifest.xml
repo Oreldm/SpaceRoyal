@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="com.android.vending.BILLING" />
 
     <application
         android:allowBackup="true"
@@ -54,7 +55,10 @@
         </activity>
         <activity
             android:name=".FriendsActivity"
-            android:label="@string/title_activity_friends"></activity>
+            android:label="@string/title_activity_friends" />
+        <activity
+            android:name=".StoreActivity"
+            android:label="@string/title_activity_store"></activity>
     </application>
 
 </manifest>
