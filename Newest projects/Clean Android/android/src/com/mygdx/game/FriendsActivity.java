@@ -52,9 +52,6 @@ public class FriendsActivity extends Activity {
                             facebookText.setText(facebookString);
                         }
                         catch(Exception e){e.printStackTrace();}
-
-//                        Log.d("Facebook",response.getJSONObject().toString());
-//                        Log.d("Facebook",MainMenu.accessToken.getUserId());
                     }
                 });
 
