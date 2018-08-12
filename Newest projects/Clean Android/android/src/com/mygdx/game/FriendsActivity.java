@@ -13,56 +13,32 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.File;
+
 public class FriendsActivity extends Activity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        MainMenu.accessToken=AccessToken.getCurrentAccessToken();
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_friends);
-        AccessToken token = AccessToken.getCurrentAccessToken();
-        GraphRequest graphRequest = GraphRequest.newMeRequest(token, new GraphRequest.GraphJSONObjectCallback() {
-            @Override
-            public void onCompleted(JSONObject jsonObject, GraphResponse graphResponse) {
-                try {
-                    JSONArray jsonArrayFriends = jsonObject.getJSONObject("friendlist").getJSONArray("data");
-                    JSONObject friendlistObject = jsonArrayFriends.getJSONObject(0);
-                    String friendListID = friendlistObject.getString("id");
-                    myNewGraphReq(friendListID);
-                    Log.d("Facebook",jsonArrayFriends.toString());
+        GraphRequest request = GraphRequest.newGraphPathRequest(
+                MainMenu.accessToken,
+                "/me/friends",
+                new GraphRequest.Callback() {
+                    @Override
+                    public void onCompleted(GraphResponse response) {
+                        Log.d("Facebook",response.toString());
+                        Log.d("Facebook",MainMenu.accessToken.getUserId());
+                        //Here show things about Facebook + Win/Lose
+                    }
+                });
 
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        Bundle param = new Bundle();
-        param.putString("fields", "friendlist");
-        graphRequest.setParameters(param);
-        graphRequest.executeAsync();
-    }
-
-    private void myNewGraphReq(String friendlistId) {
-        final String graphPath = "/"+friendlistId+"/members/";
-        AccessToken token = AccessToken.getCurrentAccessToken();
-        GraphRequest request = new GraphRequest(token, graphPath, null, HttpMethod.GET, new GraphRequest.Callback() {
-            @Override
-            public void onCompleted(GraphResponse graphResponse) {
-                JSONObject object = graphResponse.getJSONObject();
-                try {
-                    JSONArray arrayOfUsersInFriendList= object.getJSONArray("data");
-                    /* Do something with the user list */
-                    /* ex: get first user in list, "name" */
-                    JSONObject user = arrayOfUsersInFriendList.getJSONObject(0);
-                    String usersName = user.getString("name");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        Bundle param = new Bundle();
-        param.putString("fields", "name");
-        request.setParameters(param);
         request.executeAsync();
+
+        String str=FileHandler.readFromFile(this);
+        Log.d("File",str);
     }
+
 
 }

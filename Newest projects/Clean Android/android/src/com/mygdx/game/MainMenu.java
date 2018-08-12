@@ -25,7 +25,7 @@ public class MainMenu extends Activity {
     CallbackManager callbackManager;
     private static final String EMAIL = "email";
     LoginButton loginButton;
-    AccessToken accessToken;
+    public static AccessToken accessToken;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -34,7 +34,7 @@ public class MainMenu extends Activity {
         AppEventsLogger.activateApp(this);
         callbackManager = CallbackManager.Factory.create();
         loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.setReadPermissions(Arrays.asList(EMAIL));
+        loginButton.setReadPermissions(Arrays.asList(EMAIL,"user_friends","read_insights"));
         // Callback registration
         loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
             @Override
@@ -57,7 +57,8 @@ public class MainMenu extends Activity {
 
         boolean isLoggedIn = accessToken != null && !accessToken.isExpired();
         if(isLoggedIn)
-            LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile","user_friends"));
+            LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("public_profile","user_friends","read_insights","user_status",
+                    "friends_status","user_photos","friends_photos","user_location","friends_location"));
 
         startGame = (Button)findViewById(R.id.btn_play);
 

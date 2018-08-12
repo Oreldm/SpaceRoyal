@@ -31,7 +31,7 @@ import java.util.Random;
 public class MyGdxGame extends ApplicationAdapter{
 	private final float UPDATE_TIME=1/60f;
 	float timer;
-	boolean isGameOver=false;
+	public static boolean isGameOver=false;
 	static SpriteBatch batch;
 	public static Socket socket;
 	String id;
@@ -54,8 +54,9 @@ public class MyGdxGame extends ApplicationAdapter{
 	BitmapFont font;
 	public static boolean isFirstTime=true;
 	static int loops =0;
-	String endGameStr="Game Over!\n Press Back";
-	boolean canWrite=true;
+	public static String endGameStr="Game Over!\n Press Back";
+	public static boolean canWrite=true;
+	public static boolean isWin=false;
 
 
 	@Override
@@ -307,9 +308,9 @@ public class MyGdxGame extends ApplicationAdapter{
 		}
 
 		if(isGameOver){
-        	isGameOver=false;
+        	handleInput(Gdx.graphics.getDeltaTime());
+			canWrite=false;
 			MyGdxGame.socket.disconnect();
-
 			font.setColor(new Color(Color.WHITE));
 			font.getData().setScale(4);
 			font.draw(batch, endGameStr,Gdx.graphics.getWidth()/3,Gdx.graphics.getHeight()/2);
@@ -319,6 +320,7 @@ public class MyGdxGame extends ApplicationAdapter{
         batch.end();
 
         if(HealthBar.HP<=0){
+			updateServer(Gdx.graphics.getDeltaTime());
 			if(canWrite)
 				endGameStr="You Lose :(\n"+endGameStr;
 			isGameOver=true;
@@ -399,9 +401,6 @@ public class MyGdxGame extends ApplicationAdapter{
 					Double y = data.getDouble("y");
 					Double rotation = data.getDouble("rotation");
 					if(friendlyPlayers.get(playerId)!=null){
-//						positionsPlayers.add(new Vector2(x.floatValue(),y.floatValue()));
-//						rotationsPlayers.add(rotation.intValue());
-//						enemyId=playerId;
 						friendlyPlayers.get(playerId).setPosition(x.floatValue(),y.floatValue());
 						friendlyPlayers.get(playerId).setRotation(rotation.floatValue());
 					}
@@ -448,7 +447,10 @@ public class MyGdxGame extends ApplicationAdapter{
 			public void call(Object... args) {
 					//CLOSE GAME
 					isGameOver=true;
-					endGameStr="You WON! \n"+endGameStr;
+					isWin=true;
+					if(endGameStr.equals("Game Over!\n Press Back")) {
+						endGameStr = "You WON! \n" + endGameStr;
+					}
 			}
 		});
 	}
