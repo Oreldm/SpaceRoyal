@@ -101,6 +101,7 @@ public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
 		for(int i=1;i<15;i++){
 			boomArr.add(new Texture(CollisionBoom.animationBaseName+i+".png"));
 		}
+        HealthBar.HP=100;
 		sizeOfHealthBar=(hpBar.getWidth()-300);
 		sizeOfBackHealthBar=(hpBar.getWidth()-295);
 		basicHeightPosition=Gdx.graphics.getHeight()-hpBar.getHeight()-heartIcon.getWidth()/4;
