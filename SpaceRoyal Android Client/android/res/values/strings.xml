@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">my-gdx-game</string>
+    <string name="app_name">SpaceRoyal</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_face_book_login">FaceBookLogin</string>
     <string name="facebook_app_id">2144920199106393</string>

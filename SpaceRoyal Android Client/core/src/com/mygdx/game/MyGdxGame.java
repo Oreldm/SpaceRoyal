@@ -3,6 +3,7 @@ package com.mygdx.game;
 import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.Texture;
@@ -10,6 +11,8 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.I18NBundle;
+
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -25,6 +28,7 @@ import java.util.HashMap;
 
 
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
@@ -54,14 +58,19 @@ public class MyGdxGame extends ApplicationAdapter{
 	BitmapFont font;
 	public static boolean isFirstTime=true;
 	static int loops =0;
-	public static String endGameStr="Game Over!\n Press Back";
 	public static boolean canWrite=true;
 	public static boolean isWin=false;
 	public static boolean isLose=false;
+	public static String endGameStr;
+	private I18NBundle myBundle;
 
 
 	@Override
 	public void create () {
+        FileHandle baseFileHandle = Gdx.files.internal("IngameStrings");
+        Locale locale = new Locale("en", "CA", "VAR1");
+        myBundle = I18NBundle.createBundle(baseFileHandle, locale);
+        endGameStr=myBundle.get("endGameStr");
 		font = new BitmapFont();
 		batch = new SpriteBatch();
 		playerShip = new Texture("Rocket_1.png");
@@ -343,7 +352,7 @@ public class MyGdxGame extends ApplicationAdapter{
 
 	public void connectSocket(){
 		try {
-			socket = IO.socket("http://ec2-34-241-75-147.eu-west-1.compute.amazonaws.com:8080");
+			socket = IO.socket("http://ec2-34-242-217-217.eu-west-1.compute.amazonaws.com:8080");
 			//socket = IO.socket("http://localhost:8080");
 			socket.connect();
 		} catch(Exception e){
