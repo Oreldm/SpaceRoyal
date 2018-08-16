@@ -32,37 +32,52 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Random;
 
-public class MyGdxGame extends ApplicationAdapter{
-	private final float UPDATE_TIME=1/60f;
-	float timer;
-	public static boolean isGameOver=false;
-	static SpriteBatch batch;
-	public static Socket socket;
-	String id;
+public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
+    //Socket Entities
+    public static Socket socket;
+    String id;
+
+    //Ingame Bool Entities
+    public static String endGameStr;
+    public static boolean canWrite=true;
+    public static boolean isWin=false;
+    public static boolean isLose=false;
+    public static boolean isFirstTime=true;
+    public static boolean isGameOver=false;
+
+    //used to get Strings - for multilanguage support
+    private I18NBundle myBundle;
+
+    //Ingame Objects
 	Starship player;
+    HealthBar hpBar;
+
+    static SpriteBatch batch;
+    Sprite heartIcon;
+    Sprite backHealthBar;
+    HashMap<String, Starship> friendlyPlayers;
+    ArrayList<Texture> boomArr = new ArrayList<Texture>();
+    HashMap<Vector2,Integer> bombToDraw=new HashMap<Vector2, Integer>();
+    ArrayList<String> enemyShootsToCreate=new ArrayList<String>(); //the string is playerID
+    public static ArrayList<Shoot>enemyShoots=new ArrayList<Shoot>();
+
+    //textures
 	Texture playerShip;
 	Texture friendlyShip;
 	Texture background;
-	HashMap<String, Starship> friendlyPlayers;
+
+    //controllers
 	Controller controller;
-	ArrayList<Texture> boomArr = new ArrayList<Texture>();
-	HashMap<Vector2,Integer> bombToDraw=new HashMap<Vector2, Integer>();
-    public static ArrayList<Shoot>enemyShoots=new ArrayList<Shoot>();
-    ArrayList<String> enemyShootsToCreate=new ArrayList<String>(); //the string is playerID
-	HealthBar hpBar;
-	Sprite heartIcon;
-	Sprite backHealthBar;
-	float sizeOfHealthBar;
-	float sizeOfBackHealthBar;
-	float basicHeightPosition;
+
+	//UI+UX entities
 	BitmapFont font;
-	public static boolean isFirstTime=true;
+    float sizeOfHealthBar;
+    float sizeOfBackHealthBar;
+    float basicHeightPosition;
+    float timer;
+    private final float UPDATE_TIME=1/60f;
+
 	static int loops =0;
-	public static boolean canWrite=true;
-	public static boolean isWin=false;
-	public static boolean isLose=false;
-	public static String endGameStr;
-	private I18NBundle myBundle;
 
 
 	@Override
@@ -333,7 +348,7 @@ public class MyGdxGame extends ApplicationAdapter{
             isLose=true;
 			updateServer(Gdx.graphics.getDeltaTime());
 			if(canWrite)
-				endGameStr="You Lose :(\n"+endGameStr;
+				endGameStr=myBundle.get("loseStr")+endGameStr;
 			isGameOver=true;
 			canWrite=false;
 		}
@@ -352,7 +367,7 @@ public class MyGdxGame extends ApplicationAdapter{
 
 	public void connectSocket(){
 		try {
-			socket = IO.socket("http://ec2-34-242-217-217.eu-west-1.compute.amazonaws.com:8080");
+			socket = IO.socket(SERVER_ADDR);
 			//socket = IO.socket("http://localhost:8080");
 			socket.connect();
 		} catch(Exception e){
@@ -385,10 +400,10 @@ public class MyGdxGame extends ApplicationAdapter{
 				JSONObject data = (JSONObject) args[0];
 				try {
 					String playerId = data.getString("id");
-					Gdx.app.log("SocketIO", "New Player Connect: " + id);
+					Gdx.app.log("SocketIO", myBundle.get("newConnection") + id);
 					friendlyPlayers.put(playerId, new Starship(friendlyShip));
 				}catch(JSONException e){
-					Gdx.app.log("SocketIO", "Error getting New PlayerID");
+					Gdx.app.log("SocketIO", myBundle.get("newPlayerIdErr")+"");
 				}
 			}
 		}).on("playerDisconnected", new Emitter.Listener() {
@@ -399,7 +414,7 @@ public class MyGdxGame extends ApplicationAdapter{
 					id = data.getString("id");
 					friendlyPlayers.remove(id);
 				}catch(JSONException e){
-					Gdx.app.log("SocketIO", "Error getting disconnected PlayerID");
+					Gdx.app.log("SocketIO", myBundle.get("connectionErr")+"");
 				}
 			}
 		}).on("playerMoved", new Emitter.Listener() {
@@ -436,7 +451,7 @@ public class MyGdxGame extends ApplicationAdapter{
 
 				}
 			}
-		}).on("shoot", new Emitter.Listener() {
+		}).on(SHOOT_ACTION, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
@@ -460,7 +475,7 @@ public class MyGdxGame extends ApplicationAdapter{
 					isGameOver=true;
 					isWin=true;
 					if(endGameStr.equals(myBundle.get("endGameStr"))) {
-						endGameStr = "You WON! \n" + endGameStr;
+						endGameStr = myBundle.get("winStr") + endGameStr;
 					}
 			}
 		});
