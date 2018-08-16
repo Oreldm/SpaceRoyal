@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 
 import com.facebook.AccessToken;
@@ -63,7 +65,8 @@ public class MainMenu extends Activity {
                     "friends_status","user_photos","friends_photos","user_location","friends_location"));
 
         startGame = (Button)findViewById(R.id.btn_play);
-
+        Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
+        startGame.startAnimation(pulse);
         // handle set start click
         startGame.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -6,6 +6,6 @@
     android:pivotY="50%"
     android:repeatCount="1"
     android:repeatMode="reverse"
-    android:toXScale="0.75"
-    android:toYScale="0.75"
+    android:toXScale="1.1"
+    android:toYScale="1.1"
     android:interpolator="@anim/cycle"/>
