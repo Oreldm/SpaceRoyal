@@ -382,7 +382,7 @@ public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
 			public void call(Object... args) {
 				Gdx.app.log("SocketIO", "Connected");
 			}
-		}).on("socketID", new Emitter.Listener() {
+		}).on(SOCKET_ID, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
@@ -394,7 +394,7 @@ public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
 					Gdx.app.log("SocketIO", "Error getting ID");
 				}
 			}
-		}).on("newPlayer", new Emitter.Listener() {
+		}).on(PLAYER_CONNECTED, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
@@ -406,7 +406,7 @@ public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
 					Gdx.app.log("SocketIO", myBundle.get("newPlayerIdErr")+"");
 				}
 			}
-		}).on("playerDisconnected", new Emitter.Listener() {
+		}).on(DISCONNECT_EVENT, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
@@ -417,7 +417,7 @@ public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
 					Gdx.app.log("SocketIO", myBundle.get("connectionErr")+"");
 				}
 			}
-		}).on("playerMoved", new Emitter.Listener() {
+		}).on(PLAYER_MOVED, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONObject data = (JSONObject) args[0];
@@ -433,7 +433,7 @@ public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
 				}catch(Exception e){
 				}
 			}
-		}).on("getPlayers", new Emitter.Listener() {
+		}).on(GET_PLAYERS, new Emitter.Listener() {
 			@Override
 			public void call(Object... args) {
 				JSONArray objects = (JSONArray) args[0];
