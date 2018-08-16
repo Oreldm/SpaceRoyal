@@ -194,11 +194,11 @@ public class MyGdxGame extends ApplicationAdapter implements ServerEntites {
 	public void render () {
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		if(friendlyPlayers.size()==1) {
+//		if(friendlyPlayers.size()==1) {
 			handleInput(Gdx.graphics.getDeltaTime());
-		} else if (friendlyPlayers.size()>1){
-			socket.disconnect(); //should change here what happens when disconnect
-		}
+//		} else if (friendlyPlayers.size()>1){
+//			socket.disconnect(); //should change here what happens when disconnect
+//		}
 
 		//Placement
 		if(loops <100) //100 is because friendlyPlayers might need to load :)
