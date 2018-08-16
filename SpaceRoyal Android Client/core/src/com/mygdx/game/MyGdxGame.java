@@ -459,7 +459,7 @@ public class MyGdxGame extends ApplicationAdapter{
 					//CLOSE GAME
 					isGameOver=true;
 					isWin=true;
-					if(endGameStr.equals("Game Over!\n Press Back")) {
+					if(endGameStr.equals(myBundle.get("endGameStr"))) {
 						endGameStr = "You WON! \n" + endGameStr;
 					}
 			}
